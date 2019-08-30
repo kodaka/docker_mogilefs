@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    container_name: mogile_app
+    volumes:
+      - "./mog-data:/var/mogdata"
+    ports:
+      - "7001:7001"
+      - "7500:7500"
+      - "7501:7501"
+    depends_on:
+      - db
+    networks:
+      mogile_net:
+        ipv4_address: 172.20.0.3
+  db:
+    image: "mysql:5.7.27"
+    container_name: mogile_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+#     MYSQL_DATABASE: mogilefs
+      MYSQL_USER: mogile
+      MYSQL_PASSWORD: mogilepass
+      TZ: "Asia/Tokyo"
+    volumes:
+      - "./mysql-data:/var/lib/mysql"
+    ports:
+      - "3306:3306"
+    networks:
+      mogile_net:
+        ipv4_address: 172.20.0.2
+
+networks:
+  mogile_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
